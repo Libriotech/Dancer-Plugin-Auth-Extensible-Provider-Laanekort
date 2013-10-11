@@ -2,7 +2,16 @@ package Dancer::Plugin::Auth::Extensible::Provider::Laanekort;
 
 use base 'Dancer::Plugin::Auth::Extensible::Provider::Base';
 use Dancer qw(:syntax);
+use SOAP::Lite;
 use Modern::Perl;
+use Data::Dumper; # FIXME
+
+BEGIN {
+    sub SOAP::Transport::HTTP::Client::get_basic_credentials {
+        # FIXME Get this from config
+        return 'x' => 'y';
+    }
+}
 
 =head1 NAME
 
@@ -35,9 +44,43 @@ sub authenticate_user {
     my ($self, $patron_username, $patron_password) = @_;
     
     my $settings = $self->realm_settings;
-    debug "*** Authenticating against: " . $settings->{host};
     
-    # return true/false
+    my $client = SOAP::Lite
+	    ->on_action( sub { return '""';})
+	    ->uri('http://lanekortet.no')
+	    ->proxy('https://fl.lanekortet.no/laanekort/bs_flnr.php');
+	    
+    debug "=== Attempting login against NL: " . $patron_username . " " . $settings->{'bibnr'} . " " . $patron_password;
+
+    my $lnr = SOAP::Data->type('string');
+    $lnr->name('lnr');
+    $lnr->value( $patron_username );
+
+    my $bibnr = SOAP::Data->type('string');
+    $bibnr->name('bibnr');
+    $bibnr->value( $settings->{'bibnr'} );
+
+    my $pin = SOAP::Data->type('string');
+    $pin->name('pin');
+    $pin->value( $patron_password );
+
+    my $result = $client->verifyLnr( $lnr, $bibnr, $pin );
+
+    unless ($result->fault) {
+
+	    my $user = $result->result();
+	    debug Dumper $result->result();
+    	return $user->{'status'};
+
+    } else {
+
+	    debug join ', ',
+		    $result->faultcode,
+		    $result->faultstring,
+		    $result->faultdetail;
+	    return 0;
+
+    }
     
 }
 
@@ -54,7 +97,7 @@ sub get_user_details {
     my ($self, $patron_username) = @_;
 
     my $settings = $self->realm_settings;
-    debug "*** Authenticating against: " . $settings->{host};
+    # debug "*** Authenticating against: " . $settings->{host};
     
     my $user = {};
     return $user;
