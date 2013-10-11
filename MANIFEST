@@ -1,0 +1,12 @@
+.gitignore
+Changes
+lib/Dancer/Plugin/Auth/Extensible/Provider/Laanekort.pm
+Makefile.PL
+MANIFEST			This list of files
+MANIFEST.SKIP
+README.pod
+t/00-load.t
+t/boilerplate.t
+t/manifest.t
+t/pod-coverage.t
+t/pod.t
