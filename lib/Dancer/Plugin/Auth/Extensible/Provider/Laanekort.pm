@@ -8,8 +8,7 @@ use Data::Dumper; # FIXME
 
 BEGIN {
     sub SOAP::Transport::HTTP::Client::get_basic_credentials {
-        # FIXME Get this from config
-        return 'x' => 'y';
+        return config->{'laanekort_username'} => config->{'laanekort_password'};
     }
 }
 
