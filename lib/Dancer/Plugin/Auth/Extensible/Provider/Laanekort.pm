@@ -110,7 +110,7 @@ Given a username, return a list of roles that user has.
 =cut
 
 sub get_user_roles {
-    my @roles = ( 'sip2user' );
+    my @roles = ( 'nluser' );
     return \@roles;
 }
 
