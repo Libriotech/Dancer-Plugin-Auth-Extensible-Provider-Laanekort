@@ -42,6 +42,8 @@ sub authenticate_user {
 
     my ($self, $patron_username, $patron_password) = @_;
     
+    # TODO Validate the format of the username and the password/pin code
+    
     my $settings = $self->realm_settings;
     
     my $client = SOAP::Lite
@@ -94,12 +96,43 @@ Details are returned as a hashref.
 sub get_user_details {
 
     my ($self, $patron_username) = @_;
-
-    my $settings = $self->realm_settings;
-    # debug "*** Authenticating against: " . $settings->{host};
     
-    my $user = {};
-    return $user;
+    my $settings = $self->realm_settings;
+    debug "*** Getting user details from NL";
+    
+    my $client = SOAP::Lite
+	    ->on_action( sub { return '""';})
+	    ->uri( 'http://lanekortet.no' )
+	    ->proxy( 'https://fl.lanekortet.no/laanekort/fl.php' );
+
+    my $lnr = SOAP::Data->type( 'string' );
+    $lnr->name( 'identifikator' );
+    $lnr->value( $patron_username );
+
+    my $result = $client->hent( $lnr );
+
+    unless ($result->fault) {
+
+        my $r = $result->result();
+        if ( $r->{'antall_poster_returnert'} != 1 ) {
+            # FIXME What to do? 
+            debug "*** Got antall_poster_returnert != 1";
+        } else {
+        	my $patron = $r->{'respons_poster'}[0];
+        	my $user = {};
+        	$user->{email} = $patron->{'epost'};
+            $user->{name}  = $patron->{'navn'};
+            return $user
+        }
+
+    } else {
+
+	    debug join ', ',
+		    $result->faultcode,
+		    $result->faultstring,
+		    $result->faultdetail;
+
+    }
             
 }
 
