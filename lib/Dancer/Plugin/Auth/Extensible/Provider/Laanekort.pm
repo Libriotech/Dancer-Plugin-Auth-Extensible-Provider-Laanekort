@@ -120,8 +120,12 @@ sub get_user_details {
         } else {
         	my $patron = $r->{'respons_poster'}[0];
         	my $user = {};
-        	$user->{email} = $patron->{'epost'};
-            $user->{name}  = $patron->{'navn'};
+        	$user->{email}    = $patron->{'epost'};
+            $user->{name}     = $patron->{'navn'};
+            $user->{gender}   = $patron->{'kjonn'};
+            $user->{birthday} = $patron->{'fdato'};
+            $user->{zipcode}  = $patron->{'p_postnr'};
+            $user->{place}    = $patron->{'p_sted'};
             return $user
         }
 
