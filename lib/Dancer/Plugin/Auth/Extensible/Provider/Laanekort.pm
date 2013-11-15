@@ -51,7 +51,7 @@ sub authenticate_user {
 	    ->uri('http://lanekortet.no')
 	    ->proxy('https://fl.lanekortet.no/laanekort/bs_flnr.php');
 	    
-    debug "=== Attempting login against NL: " . $patron_username . " " . $settings->{'bibnr'} . " " . $patron_password;
+    debug "=== Attempting login against NL: " . $patron_username . " " . $settings->{'bibnr'};
 
     my $lnr = SOAP::Data->type('string');
     $lnr->name('lnr');
