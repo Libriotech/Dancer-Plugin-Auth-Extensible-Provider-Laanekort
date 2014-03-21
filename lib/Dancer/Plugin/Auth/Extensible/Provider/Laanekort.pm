@@ -44,6 +44,9 @@ sub authenticate_user {
     
     # TODO Validate the format of the username and the password/pin code
     
+    # Make sure the username is uppercase
+    $patron_username = uc $patron_username;
+    
     my $settings = $self->realm_settings;
     
     my $client = SOAP::Lite
